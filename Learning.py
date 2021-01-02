@@ -30,9 +30,9 @@ if __name__ == "__main__":
 
     ### Loading data and puting it into tensor form
 
-    locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('sameh_data_clean_np\\Locations.npy'),\
-                np.load('sameh_data_clean_np\\Radio_map_full.npy'), np.load('sameh_data_clean_np\\Radio_map_mean.npy'),\
-                np.load('sameh_data_clean_np\\cl_rp_mean_5.npy'), np.load('sameh_data_clean_np\\Radio_map_var.npy')
+    locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('sameh_data_clean_np/Locations.npy'),\
+                np.load('sameh_data_clean_np/Radio_map_full.npy'), np.load('sameh_data_clean_np/Radio_map_mean.npy'),\
+                np.load('sameh_data_clean_np/cl_rp_mean_5.npy'), np.load('sameh_data_clean_np/Radio_map_var.npy')
         
 
     R = torch.from_numpy(cl_rp_mean_5)
@@ -72,7 +72,13 @@ if __name__ == "__main__":
         n_radio_idx = np.arange(len(radio_idx))
 
         
-       ## Spliting the radio map into clear and crowd sourced (cr) part
+        ## Spliting the radio map into clear and crowd sourced (cr) part
+        """
+        It may happen that the data is splited such that the clean data does not have signals from an specific access point
+        in that case our model can predict the signal and an error raises
+
+        In order to prevent that experiments are limited to the first hundered data ponts of the radio map
+        """
         cl_idx = np.random.choice(n_radio_idx, len(radio_idx)// 2, replace=False)
         cr_idx = n_radio_idx[~ np.in1d(n_radio_idx, cl_idx)]
 
