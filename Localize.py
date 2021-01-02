@@ -6,8 +6,8 @@ from gaussian_process import gp, RBF
 
 
 
-locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('sameh_data_clean_np\\Locations.npy'), np.load('sameh_data_clean_np\\Radio_map_full.npy'), \
-    np.load('sameh_data_clean_np\\Radio_map_mean.npy'), np.load('sameh_data_clean_np\\cl_rp_mean_5.npy'), np.load('sameh_data_clean_np\\Radio_map_var.npy')
+locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('sameh_data_clean_np/Locations.npy'), np.load('sameh_data_clean_np/Radio_map_full.npy'), \
+    np.load('sameh_data_clean_np/Radio_map_mean.npy'), np.load('sameh_data_clean_np/cl_rp_mean_5.npy'), np.load('sameh_data_clean_np/Radio_map_var.npy')
 
 
 rp_mean_5 = cl_rp_mean_5
