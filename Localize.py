@@ -153,9 +153,12 @@ class Localize:
         signal_ = -110 * torch.ones(signal.shape)
         for i in torch.unique(signal_ap[1]):
             idx_i = signal_ap[0][signal_ap[1] == i]
+            try:
             signal_[idx_i, i] = torch.tensor(self.G[i].predict(signal_location[idx_i].reshape(-1,2)), \
                 dtype = torch.float).squeeze()
-
+            except AttributeError:
+                continue
+            
         return signal_
 
     def n_marginal_log_likelihood(self):
