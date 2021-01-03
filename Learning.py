@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-from gaussian_process import gp, RBF
-from localize import Localize, localize, cl_rp_mean_5, locations, location_est
+from Gaussian_process import gp, RBF
+from Localize import Localize, localize, cl_rp_mean_5, locations, location_est
 kernel = RBF(1)
 
 

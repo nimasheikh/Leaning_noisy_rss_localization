@@ -1,8 +1,8 @@
 ######## one parameter of noise per each access point and location ########
 ########          Training papameters using autograd                ########
-
+import numpy as np
 import torch
-from gaussian_process import gp, RBF
+from Gaussian_process import gp, RBF
 
 
 
