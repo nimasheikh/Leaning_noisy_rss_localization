@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-from gaussian_process3 import gp, RBF
-from localize_3 import Localize, localize, cl_rp_mean_5, locations, location_est
+from gaussian_process import gp, RBF
+from localize import Localize, localize, cl_rp_mean_5, locations, location_est
 kernel = RBF(1)
 
 
@@ -14,12 +14,27 @@ def noisy_knn(Radio, Loc, x):
 
     return l_hat
 
-def loss(Radio, Loc, cr_pred, cr_idx, X, X_loc, alpha):
+def loss(Radio, Loc, cr_pred, cr_idx, alpha):
+    
     smooth_radio = Radio.clone()
     smooth_radio[cr_idx] = (1 - torch.abs(alpha)) * Radio[cr_idx] + torch.abs(alpha) * cr_pred
-    test_loc_hat = noisy_knn(smooth_radio, Loc, X)
-    dist = torch.linalg.norm(X_loc - test_loc_hat, axis = -1)
-    return torch.mean(dist)
+        
+    # seting cr_data as test points
+    idx = np.arange(len(Radio))[~ np.in1d( np.arange(len(Radio)), cr_idx)]
+    
+    error = 0 
+    
+    for i in idx:
+        idx_ = idx[idx!= i]
+        smooth_radio_ = radio[idx_]
+        Loc_ = Loc[idx_]
+        test_ = Radio[i]
+        test_loc = Loc[i]
+        test_loc_hat = noisy_knn(smooth_radio_, Loc_, test_)
+        error += torch.linalg.norm(test_loc - test_loc_hat, axis = -1)
+        
+
+    return error
 
 
 
