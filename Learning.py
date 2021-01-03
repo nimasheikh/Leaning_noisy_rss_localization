@@ -2,11 +2,11 @@ import numpy as np
 import torch
 from Gaussian_process import gp, RBF
 from Localize import Localize, localize, cl_rp_mean_5, locations, location_est
-kernel = RBF(1)
+kernel = RBF(5)
 
 def smooth_radio(Radio, cr_idx, cr_pred ,alpha):
     smooth_radio_ = Radio.clone()
-    smooth_radio_[idx] = Radio[cr_idx] * (1 - torch.abs(alpha)) + cr_pred * torch.abs(alpha)
+    smooth_radio_[cr_idx] = Radio[cr_idx] * (1 - torch.abs(alpha)) + cr_pred * torch.abs(alpha)
     return smooth_radio_
 
 
@@ -21,9 +21,8 @@ def noisy_knn(Radio, Loc, x):
 
 def loss(Radio, Loc, cr_pred, cr_idx, alpha):
     
-    smooth_radio = Radio.clone()
-    smooth_radio[cr_idx] = (1 - torch.abs(alpha)) * Radio[cr_idx] + torch.abs(alpha) * cr_pred
-        
+    smooth_radio_ = smooth_radio(Radio, cr_idx, cr_pred, alpha)
+    
     # seting cr_data as test points
     idx = np.arange(len(Radio))[~ np.in1d( np.arange(len(Radio)), cr_idx)]
     
@@ -31,11 +30,11 @@ def loss(Radio, Loc, cr_pred, cr_idx, alpha):
     
     for i in idx:
         idx_ = idx[idx!= i]
-        smooth_radio_ = radio[idx_]
+        smooth_radio_i = smooth_radio_[idx_]
         Loc_ = Loc[idx_]
         test_ = Radio[i]
         test_loc = Loc[i]
-        test_loc_hat = noisy_knn(smooth_radio_, Loc_, test_)
+        test_loc_hat = noisy_knn(smooth_radio_i, Loc_, test_)
         error += torch.linalg.norm(test_loc - test_loc_hat, axis = -1)
         
 
@@ -167,8 +166,8 @@ if __name__ == "__main__":
             D[1, i, j] = torch.mean(torch.linalg.norm(noisy_knn(radio_noisy[cl_idx], radio_loc[cl_idx], test)\
                                                      - test_loc, axis = -1)).detach().numpy()       #ignore (just cl data)
 
-            smooth_radio_1, smooth_radio_2 = smooth_radio(radio_noisy, cr_idx, cr_pred, alpha_1)\
-                                            , smooth_radio(radio_noisy, cr_idx, cr_pred, alpha_1)
+            smooth_radio_1, smooth_radio_2 = smooth_radio(radio_noisy, cr_idx, cr_predict, alpha_1)\
+                                            , smooth_radio(radio_noisy, cr_idx, cr_predict, alpha_1)
 
             D[2, i, j] = torch.mean(torch.linalg.norm(noisy_knn(smooth_radio_1, radio_loc, test)\
                                                      - test_loc, axis = -1)).detach().nump()
