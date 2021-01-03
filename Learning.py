@@ -22,14 +22,15 @@ def noisy_knn(Radio, Loc, x):
 def loss(Radio, Loc, cr_pred, cr_idx, alpha):
     
     smooth_radio_ = smooth_radio(Radio, cr_idx, cr_pred, alpha)
-    
+
     # seting cr_data as test points
-    idx = np.arange(len(Radio))[~ np.in1d( np.arange(len(Radio)), cr_idx)]
+    idx_radio = np.arange(len(Radio))
+    idx_cl = idx_radio[~ np.in1d( idx_radio, cr_idx)]
     
     error = 0 
     
-    for i in idx:
-        idx_ = idx[idx!= i]
+    for i in idx_cl:
+        idx_ = idx_radio[idx_radio != i]
         smooth_radio_i = smooth_radio_[idx_]
         Loc_ = Loc[idx_]
         test_ = Radio[i]
@@ -38,7 +39,7 @@ def loss(Radio, Loc, cr_pred, cr_idx, alpha):
         error += torch.linalg.norm(test_loc - test_loc_hat, axis = -1)
         
 
-    return error
+    return error/ len(idx_cl)
 
 
 
@@ -75,8 +76,8 @@ if __name__ == "__main__":
     for i in range(num_experiment):
             
         #### defining test data, validation data and radio map
-        n_test = 40
-        idx = np.arange(120)
+        n_test = 54
+        idx = np.arange(224)
 
         test_idx = np.random.choice(idx, n_test, replace = False)
         radio_idx = idx[~np.in1d(idx, test_idx)]
@@ -92,7 +93,8 @@ if __name__ == "__main__":
         It may happen that the data is splited such that the clean data does not have signals from an specific access point
         in that case our model can predict the signal and an error raises
 
-        In order to prevent that experiments are limited to the first hundered data ponts of the radio map
+        In order to prevent the estimation is inside a try except box, if it is not possible to estimate the 
+        crowd signal's output based on the clean data, it is left unchanged(no estimation is used)
         """
         cl_idx = np.random.choice(n_radio_idx, len(radio_idx)// 2, replace=False)
         cr_idx = n_radio_idx[~ np.in1d(n_radio_idx, cl_idx)]
@@ -116,12 +118,15 @@ if __name__ == "__main__":
             L_ = Localize(radio_noisy[cl_idx], radio_loc[cl_idx])
             cr_predict = L_.signal(radio_loc[cr_idx], radio_noisy[cr_idx])
 
-            ## defining two models _1, _2 for two intial values
+            ## defining two models _1, _2 ,_3 for three intial values
             alpha_1 = torch.from_numpy(1.0 *  np.ones(radio[cr_idx].shape))
             alpha_1.requires_grad = True
             
             alpha_2 = torch.from_numpy(1.0 *  np.random.uniform(0,1 , size =radio[cr_idx].shape))
             alpha_2.requires_grad = True
+            
+            alpha_3 = torch.from_numpy(0.1e-2 * np.ones(radio[cr_idx].shape))
+            alpha_3.requires_grad = True
             
             
             
@@ -130,36 +135,48 @@ if __name__ == "__main__":
             
             l_1 = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, x)
             l_2 = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, x)
-            
+            l_3 = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, x)
 
 
 
             #model update starts from here
-            learning_rate = 1
+            learning_rate = 100
             for iteration in range(1000):
-                if iteration > 800:
-                    learning_rate = 1e-1
+                if iteration > 400:
+                    learning_rate = 5
+                elif iteration > 600:
+                    learning_rate = 5e-1
+                elif iteration > 800:
+                    learning_rate = 5e-2
 
                 alpha_1.requires_grad = True
                 alpha_2.requires_grad = True
+                alpha_3.requires_grad = True
 
                 error_1 = l_1(alpha_1)
                 error_2 = l_2(alpha_2)
-                print(i, j , iteration, error_1.item(), error_2.item())
+                error_3 = l_3(alpha_3)
+
+                print(i, j , iteration, error_1.item(), error_2.item(), error_3.item())
                 
                 
                 alpha_1.retain_grad()
                 alpha_2.retain_grad()
+                alpha_3.retain_grad()
                 
                 error_1.backward()
                 error_2.backward()
+                error_3.backward()
 
                 with torch.no_grad():
                     alpha_1 = alpha_1 - learning_rate * alpha_1.grad
                     alpha_2 = alpha_2 - learning_rate * alpha_2.grad
+                    alpha_3 = alpha_3 - learning_rate * alpha_3.grad
 
                     alpha_1.grad = None
                     alpha_2.grad = None
+                    alpha_3.grad = None
+
 
             D[0, i, j] = torch.mean(torch.linalg.norm(noisy_knn(radio_noisy, radio_loc, test)\
                                                      - test_loc, axis = -1)).detach().numpy()       #simple average
@@ -170,9 +187,9 @@ if __name__ == "__main__":
                                             , smooth_radio(radio_noisy, cr_idx, cr_predict, alpha_1)
 
             D[2, i, j] = torch.mean(torch.linalg.norm(noisy_knn(smooth_radio_1, radio_loc, test)\
-                                                     - test_loc, axis = -1)).detach().nump()
+                                                     - test_loc, axis = -1)).detach().numpy()
             D[3, i, j] = torch.mean(torch.linalg.norm(noisy_knn(smooth_radio_2, radio_loc, test)\
-                                                     - test_loc, axis = -1)).detach().nump()
+                                                     - test_loc, axis = -1)).detach().numpy()
             
             
             
