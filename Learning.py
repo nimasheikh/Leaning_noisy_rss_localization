@@ -190,8 +190,10 @@ if __name__ == "__main__":
                                                      - test_loc, axis = -1)).detach().numpy()
             D[3, i, j] = torch.mean(torch.linalg.norm(noisy_knn(smooth_radio_2, radio_loc, test)\
                                                      - test_loc, axis = -1)).detach().numpy()
-            
-            
+
+
+    np.save("mkdir/result/D_01_03", D)            
+           
             
             
             
