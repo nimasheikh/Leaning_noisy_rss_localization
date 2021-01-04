@@ -192,7 +192,7 @@ if __name__ == "__main__":
                                                      - test_loc, axis = -1)).detach().numpy()
 
 
-    np.save("mkdir/result/D_01_03", D)            
+    np.save("mkdir/result/D_seq_model_01_03", D)            
            
             
             
