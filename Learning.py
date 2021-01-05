@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from Gaussian_process import gp, RBF
 from Localize import Localize, localize, cl_rp_mean_5, locations, location_est
-kernel = RBF(1)
+kernel = RBF(5)
 
 
 def noisy_knn(Radio, Loc, x):
@@ -14,10 +14,13 @@ def noisy_knn(Radio, Loc, x):
 
     return l_hat
 
+
+## localizing using just the "cr" part of the data in order to make gradient larger
+##using sigmoid to keep values between 0 and 1
 def loss(Radio, Loc, cr_pred, cr_idx, X, X_loc, alpha):
     smooth_radio = Radio.clone()
-    smooth_radio[cr_idx] = (1 - torch.abs(alpha)) * Radio[cr_idx] + torch.abs(alpha) * cr_pred
-    test_loc_hat = noisy_knn(smooth_radio, Loc, X)
+    smooth_radio[cr_idx] = (1 - torch.sigmoid(alpha)) * Radio[cr_idx] + torch.sigmoid(alpha) * cr_pred
+    test_loc_hat = noisy_knn(smooth_radio[cr_idx], Loc[cr_idx], X)
     dist = torch.linalg.norm(X_loc - test_loc_hat, axis = -1)
     return torch.mean(dist)
 
@@ -103,13 +106,13 @@ if __name__ == "__main__":
             cr_predict = L_.signal(radio_loc[cr_idx], radio_noisy[cr_idx])
 
             ## defining two models _1, _2 , _3 for two intial values
-            alpha_1 = torch.from_numpy(1.0 *  np.ones(radio[cr_idx].shape))
+            alpha_1 = torch.from_numpy(4 *  np.ones(radio[cr_idx].shape))
             alpha_1.requires_grad = True
             
-            alpha_2 = torch.from_numpy(1.0 *  np.random.uniform(0,1 , size =radio[cr_idx].shape))
+            alpha_2 = torch.from_numpy( np.random.normal(0,4 , size =radio[cr_idx].shape))
             alpha_2.requires_grad = True
             
-            alpha_3 = torch.from_numpy(1e-2 * np.ones(radio[cr_idx].shape))
+            alpha_3 = torch.from_numpy(-4 * np.ones(radio[cr_idx].shape))
             alpha_3.requires_grad = True
             
             
@@ -123,10 +126,10 @@ if __name__ == "__main__":
 
 
             #model update starts from here
-            learning_rate = 10
+            learning_rate = 1
             for iteration in range(1000):
                 if iteration > 800:
-                    learning_rate = 1
+                    learning_rate = 1e-1
 
                 alpha_1.requires_grad = True
                 alpha_2.requires_grad = True
