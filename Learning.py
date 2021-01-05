@@ -50,7 +50,8 @@ if __name__ == "__main__":
     d_ignore_noisy_data = np.zeros([num_experiment, len(Noise_scale)])      
     d_learning_init_1 = np.zeros([num_experiment, len(Noise_scale)])
     d_learning_init_2 = np.zeros([num_experiment, len(Noise_scale)])
-    D = np.array([d_simple_average, d_ignore_noisy_data, d_learning_init_1, d_learning_init_2])
+    d_learning_init_3 = np.zeros([num_experiment, len(Noise_scale)])
+    D = np.array([d_simple_average, d_ignore_noisy_data, d_learning_init_1, d_learning_init_2, d_learning_init_3])
 
 
     for i in range(num_experiment):
@@ -101,21 +102,23 @@ if __name__ == "__main__":
             L_ = Localize(radio_noisy[cl_idx], radio_loc[cl_idx])
             cr_predict = L_.signal(radio_loc[cr_idx], radio_noisy[cr_idx])
 
-            ## defining two models _1, _2 for two intial values
+            ## defining two models _1, _2 , _3 for two intial values
             alpha_1 = torch.from_numpy(1.0 *  np.ones(radio[cr_idx].shape))
             alpha_1.requires_grad = True
             
             alpha_2 = torch.from_numpy(1.0 *  np.random.uniform(0,1 , size =radio[cr_idx].shape))
             alpha_2.requires_grad = True
             
+            alpha_3 = torch.from_numpy(1e-1 * np.ones(radio[cr_idx].shape))
+            alpha_3.requires_grad = True
             
             
             
             
             
-            l_1  = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, val, val_loc, x)
+            l_1 = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, val, val_loc, x)
             l_2 = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, val, val_loc, x)
-            
+            l_3 = lambda x: loss(radio_noisy, radio_loc, cr_predict, cr_idx, val, val_loc, x)
 
 
 
@@ -130,21 +133,27 @@ if __name__ == "__main__":
 
                 error_1 = l_1(alpha_1)
                 error_2 = l_2(alpha_2)
-                print(i, j , iteration, error_1.item(), error_2.item())
+                error_3 = l_2(alpha_3)
+
+                print(i, j , iteration, error_1.item(), error_2.item(), error_3.item())
                 
                 
                 alpha_1.retain_grad()
                 alpha_2.retain_grad()
+                alpha_3.retain_grad()
                 
                 error_1.backward()
                 error_2.backward()
+                error_3.backward()
 
                 with torch.no_grad():
                     alpha_1 = alpha_1 - learning_rate * alpha_1.grad
                     alpha_2 = alpha_2 - learning_rate * alpha_2.grad
+                    alpha_3 = alpha_3 - learning_rate * alpha_3.grad
 
                     alpha_1.grad = None
                     alpha_2.grad = None
+                    alpha_3.grad = None
 
             D[0, i, j] = torch.mean(torch.linalg.norm(noisy_knn(radio_noisy, radio_loc, test)\
                                                      - test_loc, axis = -1)).detach().numpy()       #simple average
@@ -152,7 +161,7 @@ if __name__ == "__main__":
                                                      - test_loc, axis = -1)).detach().numpy()       #ignore (just cl data)
             D[2, i, j] = loss(radio_noisy, radio_loc, cr_predict, cr_idx, test, test_loc, alpha_1).detach().numpy()
             D[3, i, j] = loss(radio_noisy, radio_loc, cr_predict, cr_idx, test, test_loc, alpha_2).detach().numpy()
-            
+            D[4, i, j] = loss(radio_noisy, radio_loc, cr_predict, cr_idx, test, test_loc, alpha_3).detach().numpy()
             
             
             
