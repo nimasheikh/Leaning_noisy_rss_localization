@@ -109,7 +109,7 @@ if __name__ == "__main__":
             alpha_2 = torch.from_numpy(1.0 *  np.random.uniform(0,1 , size =radio[cr_idx].shape))
             alpha_2.requires_grad = True
             
-            alpha_3 = torch.from_numpy(1e-1 * np.ones(radio[cr_idx].shape))
+            alpha_3 = torch.from_numpy(1e-2 * np.ones(radio[cr_idx].shape))
             alpha_3.requires_grad = True
             
             
@@ -123,10 +123,10 @@ if __name__ == "__main__":
 
 
             #model update starts from here
-            learning_rate = 1
+            learning_rate = 10
             for iteration in range(1000):
                 if iteration > 800:
-                    learning_rate = 1e-1
+                    learning_rate = 1
 
                 alpha_1.requires_grad = True
                 alpha_2.requires_grad = True
