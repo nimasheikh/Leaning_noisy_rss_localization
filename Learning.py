@@ -130,6 +130,7 @@ if __name__ == "__main__":
 
                 alpha_1.requires_grad = True
                 alpha_2.requires_grad = True
+                alpha_3.requires_grad = True
 
                 error_1 = l_1(alpha_1)
                 error_2 = l_2(alpha_2)
