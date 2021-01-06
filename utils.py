@@ -39,6 +39,20 @@ def add_noise_RSS(Radio_map, cr_idx, noise_scale = 1):
 
 
 
+def add_noise_Loc(Radio_Loc, cr_idx, noise_scale = 1):
+    noise_scale_vec = np.zeros(Radio_Loc.shape)
+    noise_scale_vec[cr_idx, :] = noise_scale
+    Noise = torch.from_numpy(np.random.normal(loc =0 , scale = noise_scale_vec))
+    
+    
+    Radio_Loc_noisy = Radio_Loc + Noise
+    
+    return Radio_Loc_noisy
+
+
+
+
+
 
 def split_data(Data_x, Data_y, len_test, cr_data_portion):
     
