@@ -30,7 +30,7 @@ if __name__ == "__main__":
         for c in range(n_cr_data_portion_cases):    
             cr_data_portion = Cr_data_portion[c]  
             radio, radio_loc, test, test_loc, cr_idx, cl_idx = split_data(R, L, n_test, cr_data_portion)
-            
+
 
 
             for j in range(len(Noise_scale)):
@@ -42,10 +42,10 @@ if __name__ == "__main__":
                 loc_hat_test_ignore_noisy_data = soft_knn(radio[cl_idx], radio_loc[cl_idx], test)
                 loc_hat_test_perfect_data = soft_knn(radio, radio_loc, test, RBF(length_scale))
         
-                d_simple_average[i,j] = np.mean(np.linalg.norm(loc_hat_test_simple_avg - test_loc, axis = -1))
+                d_simple_average[i,c,j] = np.mean(np.linalg.norm(loc_hat_test_simple_avg - test_loc, axis = -1))
                 if j == 0:
-                    d_ignore_noisy_data[i,:] = np.mean(np.linalg.norm(loc_hat_test_ignore_noisy_data- test_loc, axis = -1))
-                    d_perfect_data[i,:] = np.mean(np.linalg.norm(loc_hat_test_perfect_data - test_loc, axis = -1))
+                    d_ignore_noisy_data[i,c,:] = np.mean(np.linalg.norm(loc_hat_test_ignore_noisy_data- test_loc, axis = -1))
+                    d_perfect_data[i,c,:] = np.mean(np.linalg.norm(loc_hat_test_perfect_data - test_loc, axis = -1))
                 
         
     D_ = [d_simple_average, d_ignore_noisy_data, d_perfect_data]
