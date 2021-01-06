@@ -1,5 +1,5 @@
 import torch
-import kernel
+from kernel import RBF
 import numpy as np
 
 
@@ -27,8 +27,8 @@ def soft_knn(Radio, Loc, x, kernel = RBF()):
 
 
 def add_noise_RSS(Radio_map, cr_idx, noise_scale = 1):
-    noise_vec = np.zeros(Radio_map.shape)
-    noise_vec[cr_idx, :] = noise_scale
+    noise_scale_vec = np.zeros(Radio_map.shape)
+    noise_scale_vec[cr_idx, :] = noise_scale
     Noise = torch.from_numpy(np.random.normal(loc =0 , scale = noise_scale_vec))
     
     no_signal_ap = torch.where(Radio_map == -110)
