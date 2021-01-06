@@ -22,12 +22,13 @@ if __name__ == "__main__":
 
 
 
-    Cr_data_portion = np.linspace(0, 1, n_cr_data_portion_cases)
+    Cr_data_portion = np.linspace(0, .9, n_cr_data_portion_cases)
     n_test = 44
 
     for i in range(num_exp):
-        print(i)
+  
         for c in range(n_cr_data_portion_cases):    
+            print(i, c)
             cr_data_portion = Cr_data_portion[c]  
             radio, radio_loc, test, test_loc, cr_idx, cl_idx = split_data(R, L, n_test, cr_data_portion)
 
