@@ -40,7 +40,7 @@ if __name__ == "__main__":
                 radio_loc_noisy = add_noise_Loc(radio_loc, cr_idx, noise_scale)
                 
                 loc_hat_test_simple_avg = soft_knn(radio, radio_loc_noisy, test, RBF(length_scale))
-                loc_hat_test_ignore_noisy_data = soft_knn(radio[cl_idx], radio_loc[cl_idx], test)
+                loc_hat_test_ignore_noisy_data = soft_knn(radio[cl_idx], radio_loc[cl_idx], test, RBF(length_scale))
                 loc_hat_test_perfect_data = soft_knn(radio, radio_loc, test, RBF(length_scale))
         
                 d_simple_average[i,c,j] = np.mean(np.linalg.norm(loc_hat_test_simple_avg - test_loc, axis = -1))
