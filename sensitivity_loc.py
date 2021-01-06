@@ -11,7 +11,7 @@ if __name__ == "__main__":
     
 
     num_exp = 1000
-    n_cr_data_portion_cases = 11
+    n_cr_data_portion_cases = 9
     Noise_scale = np.linspace(0, 45, 19)
     length_scale = 5   
  
@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
 
 
-    Cr_data_portion = np.linspace(0, .9, n_cr_data_portion_cases)
+    Cr_data_portion = np.linspace(0.1, .9, n_cr_data_portion_cases)
     n_test = 44
 
     for i in range(num_exp):
@@ -52,6 +52,7 @@ if __name__ == "__main__":
     D_ = [d_simple_average, d_ignore_noisy_data, d_perfect_data]
         
     
-    
+    np.save('result/Loc_sensitivity', D_)
+
     pass
 

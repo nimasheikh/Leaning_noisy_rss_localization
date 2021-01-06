@@ -11,7 +11,7 @@ if __name__ == "__main__":
     
 
     num_exp = 1000
-    n_cr_data_portion_cases = 11
+    n_cr_data_portion_cases = 9
     Noise_scale = np.linspace(0, 45, 19)
     length_scale = 5
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
 
     n_test = 44
-    Cr_data_portion = np.linspace(0, .9, n_cr_data_portion_cases)
+    Cr_data_portion = np.linspace(.1, .9, n_cr_data_portion_cases)
         
 
 
@@ -50,6 +50,7 @@ if __name__ == "__main__":
         
         D = [d_simple_average, d_ignore_noisy_data, d_perfect_data]
         
+    np.save('result/RSS_sensitivity', D)
         
     
     pass
