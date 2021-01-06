@@ -1,5 +1,4 @@
-from Learning import R, L
-from utils import add_noise_RSS, soft_knn, split_data
+from utils import add_noise_RSS, soft_knn, split_data, R, L
 import torch
 import numpy 
 import numpy 

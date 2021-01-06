@@ -3,6 +3,18 @@ import kernel
 import numpy as np
 
 
+locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('sameh_data_clean_np/Locations.npy'),\
+                np.load('sameh_data_clean_np/Radio_map_full.npy'), np.load('sameh_data_clean_np/Radio_map_mean.npy'),\
+                np.load('sameh_data_clean_np/cl_rp_mean_5.npy'), np.load('sameh_data_clean_np/Radio_map_var.npy')
+        
+
+R = torch.from_numpy(cl_rp_mean_5)
+L = torch.from_numpy(locations)
+
+
+
+
+
 def soft_knn(Radio, Loc, x, kernel = RBF()):
     x = x.reshape(-1, 5)
     sim = kernel(x, Radio)
