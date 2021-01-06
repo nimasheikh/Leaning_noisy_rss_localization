@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     num_exp = 1000
     n_cr_data_portion_cases = 9
-    Noise_scale = np.linspace(0, 45, 19)
+    Noise_scale = np.linspace(0, 8, 17)
     length_scale = 5   
  
     d_simple_average = np.zeros([num_exp, n_cr_data_portion_cases, len(Noise_scale)])
