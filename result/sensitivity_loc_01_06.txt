@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "sensitivity_loc.py", line 1, in <module>
+    from utils import add_noise_Loc, soft_knn, split_data, R, L
+  File "/home/nima/codes/Git/Learning_noisy_rss_localization/utils.py", line 6, in <module>
+    locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('sameh_data_clean_np/Locations.npy'),\
+  File "/home/nima/.local/lib/python3.6/site-packages/numpy/lib/npyio.py", line 416, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+FileNotFoundError: [Errno 2] No such file or directory: 'sameh_data_clean_np/Locations.npy'
