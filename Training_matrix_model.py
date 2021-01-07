@@ -38,7 +38,8 @@ def train_model(Radio, Radio_loc, val_data, val_data_loc, g_init = None, learnin
     for i in range(1500):
 
         error = torch.mean(torch.linalg.norm(localizer(val_data) - val_data_loc, axis = -1))
-        print(i, error.item())
+        if i == 1499:
+            print(i, error.item())
 
         error.backward()
         optimizer.step()
