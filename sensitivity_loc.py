@@ -52,7 +52,7 @@ if __name__ == "__main__":
                 loc_hat_test_train_model = matrix_model(test).detach()
 	
                 d_simple_average[i,c,j] = np.mean(np.linalg.norm(loc_hat_test_simple_avg - test_loc, axis = -1))
-                d_train_model[i,c,j] = np.mean(np.linalg.norm(loc_hat_test_train_model - test_loc, axsi = -1))
+                d_train_model[i,c,j] = np.mean(np.linalg.norm(loc_hat_test_train_model - test_loc, axix = -1))
                 if j == 0:
                     d_ignore_noisy_data[i,c,:] = np.mean(np.linalg.norm(loc_hat_test_ignore_noisy_data- test_loc, axis = -1))
                     d_perfect_data[i,c,:] = np.mean(np.linalg.norm(loc_hat_test_perfect_data - test_loc, axis = -1))
