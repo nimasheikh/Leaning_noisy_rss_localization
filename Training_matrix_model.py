@@ -3,7 +3,7 @@ from utils import soft_knn
 from kernel import RBF
 import numpy as np
 import numpy
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class noisy_soft_knn(torch.nn.Module):
     def __init__(self, Radio, Loc, g, kernel = RBF(length_scale=5)):
@@ -27,8 +27,8 @@ class noisy_soft_knn(torch.nn.Module):
 
 def train_model(Radio, Radio_loc, val_data, val_data_loc, g_init = None, learning_rate = 1 ):
     if g_init is None:
-        g_init = torch.ones([len(Radio), len(Radio)], dtype = torch.double)
-        g_init[np.arange(len(Radio)), np.arange(len(Radio))] = 10.0
+        g_init = torch.ones([len(Radio), len(Radio)], dtype = torch.double).to(device)
+        g_init[torch.arange(len(Radio)), torch.arange(len(Radio))] = 10.0
      
     g = g_init
     
