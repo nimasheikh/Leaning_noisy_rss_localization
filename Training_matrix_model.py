@@ -35,9 +35,19 @@ def train_model(Radio, Radio_loc, val_data, val_data_loc, g_init = None, learnin
 
     localizer = noisy_soft_knn(Radio, Radio_loc, g)
     optimizer = torch.optim.SGD(localizer.parameters(), lr = learning_rate, momentum = 0.9)
+    val1, val1_loc = val_data[:len(val_data) // 2], val_data_loc[: len(val_data) // 2]
+    val2, val2_loc = val_data[len(val_data) // 2:], val_data_loc[len(val_data)//2 :]
+    localization_accuracy_val = []
+    localization_accuracy_test_ = []
     for i in range(1500):
 
-        error = torch.mean(torch.linalg.norm(localizer(val_data) - val_data_loc, axis = -1))
+        with torch.no_grad():
+            err_test = torch.mean(torch.linalg.norm(localizer(val2) - val2_loc, axis = -1))
+
+        error = torch.mean(torch.linalg.norm(localizer(val1) - val1_loc, axis = -1))
+        localization_accuracy_val.append(error.item())
+        localization_accuracy_test_.append(err_test)
+
         if i == 1499:
             print(i, error.item())
 
@@ -47,7 +57,7 @@ def train_model(Radio, Radio_loc, val_data, val_data_loc, g_init = None, learnin
     
 
     
-    return localizer
+    return localizer, localization_accuracy_val, localization_accuracy_test_
 
 
 
