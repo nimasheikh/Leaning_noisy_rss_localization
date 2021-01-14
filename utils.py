@@ -40,9 +40,9 @@ def add_noise_RSS(Radio_map, cr_idx, noise_scale = 1):
 
 
 def add_noise_Loc(Radio_Loc, cr_idx, noise_scale = 1):
-    noise_scale_vec = np.zeros(Radio_Loc.shape)
+    noise_scale_vec = torch.zeros(Radio_Loc.shape).to(device)
     noise_scale_vec[cr_idx, :] = noise_scale
-    Noise = torch.from_numpy(np.random.normal(loc =0 , scale = noise_scale_vec))
+    Noise = torch.normal(mean =torch.tensor(0.0, device = device) , std = noise_scale_vec)
     
     
     Radio_Loc_noisy = Radio_Loc + Noise
