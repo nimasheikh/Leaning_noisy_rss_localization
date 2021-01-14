@@ -59,7 +59,7 @@ if __name__ == "__main__":
                     d_perfect_data[i,c,:] = torch.mean(torch.linalg.norm(loc_hat_test_perfect_data - test_loc, axis = -1))
                 
         
-    D_ = [d_simple_average..detach().to(device_2), d_train_model.detach().to(device_2), \
+    D_ = [d_simple_average.detach().to(device_2), d_train_model.detach().to(device_2), \
             d_ignore_noisy_data.detach().to(device_2), d_perfect_data.detach().to(device_2)]
         
     
