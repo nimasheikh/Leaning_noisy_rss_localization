@@ -32,7 +32,49 @@ def data_split(D, L, radio_size_portion = .8):
 
 
 def sknn(Radio_rss, Radio_loc, rss, kernel_):
-    rss_ = rss.reshape(-1, 1)
-    w = kernel_(Radio_rss, rss)
+    rss_ = rss.reshape(-1, 5)
+    w = kernel_(rss_, Radio_rss)
     normal_w = w/ torch.sum(w, axis = -1)
     return torch.mm(normal_w, Radio_loc)
+
+
+
+class sknn_model(torch.nn.Module):
+    def __init__(self, Radio, Loc, sigma):
+        super().__init__()
+        self.Radio = Radio
+        self.Loc = Loc
+        sigma.requires_grad = True
+        self.sigma = torch.nn.Parameter(sigma)
+
+
+
+    def forward(self, rss):
+        kernel_ = RBF(self.sigma)
+        return sknn(self.Radio, self.Loc, rss, kernel_)
+
+
+
+
+
+
+
+class sknn_cv(torch.nn.Module):
+    def __init__(self, Radio, Loc, sigma):
+        super().__init__()
+        self.Radio = Radio
+        self.Loc = Loc
+        sigma.requires_grad = True
+        self.sigma = torch.nn.Parameter(sigma)
+        self.idx = torch.arange(len(Radio))
+
+    def forward(self):
+        loss = 0
+        kernel_ = RBF(self.sigma)
+        for i in range(len(self.Radio)):
+            radio_idx = self.idx[ self.idx != i]
+            test_rss, test_loc, radio, loc = self.Radio[i], self.Loc[i],\
+                                            self.Radio[radio_idx], self.Loc[radio_idx]
+            loss += torch.linalg.norm( sknn(radio, loc, test_rss, kernel_) - test_loc)
+
+        return loss / len(self.Radio)
