@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from kernel import RBF
+from Localize import data_split, R, L
 kernel = RBF(1)
 
 
@@ -16,17 +17,18 @@ def noisy_knn(Radio, Loc, x, kernel_):
 
 
 class sknn(torch.nn.Module):
-    def __init__(self, Radio, Loc):
+    def __init__(self, Radio, Loc, sigma):
         super().__init__()
         self.Radio = Radio
         self.Loc = Loc
-        self.sigma = torch.nn.parameter(torch.tensor[1.0])
+        sigma.requires_grad = True
+        self.sigma = torch.nn.Parameter(sigma)
 
 
 
     def forward(self, rss):
         kernel_ = RBF(self.sigma)
-        return noisy_knn(self.Radio, self.Loc, kernel_)
+        return noisy_knn(self.Radio, self.Loc, rss, kernel_)
 
 
 
@@ -34,22 +36,24 @@ if __name__ == "__main__":
 
 
 
-    ### Loading data and puting it into tensor form
 
-    locations, rp_full, rp_mean , cl_rp_mean_5, rp_var = np.load('Sameh_data_clean_np/Locations.npy'),\
-                np.load('Sameh_data_clean_np/Radio_map_full.npy'), np.load('Sameh_data_clean_np/Radio_map_mean.npy'),\
-                np.load('Sameh_data_clean_np/cl_rp_mean_5.npy'), np.load('Sameh_data_clean_np/Radio_map_var.npy')
+    sigma = []
+    init_sigma = torch.tensor([10.0])
+    Loss = []
 
+    for j in range(10):
 
-    R = torch.from_numpy(cl_rp_mean_5)
-    L = torch.from_numpy(locations)
-
-    # number of times to average over (number of runs)
-    num_experiment = 20
-
-    # various noise stds for the noise to be added to cr data
-    Noise_scale = np.linspace(0, 45, 46)
-
+        (Radio, Loc), (test_rss, test_loc) = data_split(R, L, radio_size_portion = .99)
+        S = sknn(Radio, Loc, init_sigma)
+        optim = torch.optim.SGD(S.parameters(), lr = 1e-1)
+        for i in range(200):
+            print(i)
+            loss = torch.sum(torch.linalg.norm((S(test_rss) - test_loc), axis = -1))
+            Loss.append(loss.item() / len(test_rss))
+            sigma.append(S.sigma.item())
+            loss.backward()
+            optim.step()
+            optim.zero_grad()
 
 
 
